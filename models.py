@@ -16,7 +16,7 @@ class TaskStatus(enum.Enum):
 class Task(Base):
     __tablename__ = 'tasks'
     run_id = Column(String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
-    date = Column(Date, default=date.today())
+    date = Column(Date, default=lambda: date.today())
     status = Column(Enum(TaskStatus), default=TaskStatus.SCHEDULED)
     error = Column(Text, nullable=True)
     started_at = Column(DateTime, nullable=True)
@@ -33,7 +33,7 @@ class LegitimateSeller(Base):
     publisher_id = Column(String(500))
     seller_relationship = Column(String(500))
     tag_id = Column(String(500), nullable=True)
-    date = Column(Date, default=date.today())
+    date = Column(Date, default=lambda: date.today())
     run_id = Column(String(50), ForeignKey('tasks.run_id'))
     task = relationship('Task', back_populates='legitimate_sellers')
 

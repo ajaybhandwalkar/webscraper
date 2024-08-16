@@ -32,9 +32,9 @@ def executor():
     try:
         task = db.query(Task).filter_by(status=TaskStatus.SCHEDULED).first()
         if task:
-            # task.status = TaskStatus.STARTED
-            # task.started_at = datetime.now(UTC)
-            # db.commit()
+            task.status = TaskStatus.STARTED
+            task.started_at = datetime.now(UTC)
+            db.commit()
 
             with open('sites.json') as fp:
                 sites = json.load(fp)["sites"]
@@ -77,15 +77,19 @@ def executor():
                                 db.add(new_seller)
                 except Exception as e:
                     logging.error(f"Encountered error for site {site}: {e}")
+                    raise e
 
             db.commit()
-            # task.status = TaskStatus.FINISHED
-            # task.finished_at = datetime.now(UTC)
+            task.status = TaskStatus.FINISHED
+            task.finished_at = datetime.now(UTC)
         else:
             logging.info("No scheduled task found.")
-
     except Exception as e:
-        db.rollback()
+        if task and task.status == TaskStatus.STARTED:
+            task.status = TaskStatus.FAILED
+            task.failed_at = datetime.now(UTC)
+            task.error = str(e)
+            db.commit()
         logging.error(f"Failed to process the task: {e}")
     finally:
         try:
@@ -98,5 +102,3 @@ def executor():
 
 scheduler()
 executor()
-
-
