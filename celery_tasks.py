@@ -1,14 +1,18 @@
 import uuid
 import json
-import logging
+from logger import init_logger
 import urllib.request
 from sqlalchemy.orm import Session
 from datetime import date, datetime, UTC
 from models import Task, LegitimateSeller
 from models import TaskStatus
 from database import local_session
+from celery_config import app
+
+logging = init_logger()
 
 
+@app.task(name="scheduler")
 def scheduler():
     db: Session = local_session()
     try:
@@ -27,6 +31,7 @@ def scheduler():
         db.close()
 
 
+@app.task(name="executor")
 def executor():
     db: Session = local_session()
     try:
@@ -82,6 +87,7 @@ def executor():
             db.commit()
             task.status = TaskStatus.FINISHED
             task.finished_at = datetime.now(UTC)
+            logging.info(f"Task {task.run_id} Finished Successfully.")
         else:
             logging.info("No scheduled task found.")
     except Exception as e:
@@ -100,5 +106,5 @@ def executor():
             db.close()
 
 
-scheduler()
-executor()
+# scheduler()
+# executor()
