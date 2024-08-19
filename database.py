@@ -14,7 +14,7 @@ session = local_session()
 
 
 def create_db_and_tables():
-    print(Base.metadata.create_all(bind=engine))
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():

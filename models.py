@@ -37,5 +37,3 @@ class LegitimateSeller(Base):
     run_id = Column(String(50), ForeignKey('tasks.run_id'))
     task = relationship('Task', back_populates='legitimate_sellers')
 
-
-create_db_and_tables()

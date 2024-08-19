@@ -23,7 +23,7 @@ def scheduler():
         )
         db.add(new_task)
         db.commit()
-        logging.info(f"run_id: {new_task.run_id}")
+        logging.info(f"New task Scheduled with run_id: {new_task.run_id}")
     except Exception as e:
         db.rollback()
         logging.error(f"Failed to schedule new task: {e}")
@@ -81,7 +81,7 @@ def executor():
                                     )
                                 db.add(new_seller)
                 except Exception as e:
-                    logging.error(f"Encountered error for site {site}: {e}")
+                    logging.error(f"Encountered error for site {site}")
                     raise e
 
             db.commit()
@@ -96,7 +96,7 @@ def executor():
             task.failed_at = datetime.now(UTC)
             task.error = str(e)
             db.commit()
-        logging.error(f"Failed to process the task: {e}")
+        logging.error(f"Exception occurred in finishing task run_id {task.run_id}: {e}")
     finally:
         try:
             db.commit()
@@ -107,4 +107,3 @@ def executor():
 
 
 # scheduler()
-# executor()
